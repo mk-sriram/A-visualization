@@ -3,7 +3,7 @@ import math
 from queue import PriorityQueue
 
 
-WIDTH = 900 
+WIDTH = 800
 WIN = pygame.display.set_mode((WIDTH, WIDTH))
 
 pygame.display.set_caption("A* path Finding Algorithm")
@@ -39,16 +39,9 @@ class Spot:  #singular spot and its attributes
 
     #checking if the 
     def is_closed(self):
-        if self.color == RED:
-            return True
-        else:
-            return False
+        return self.color == RED
     def is_open(self):
-        if self.color == GREEN:
-            return True
-        else:
-            return False
-    
+        return self.color == GREEN 
     def is_barrier(self):
         return self.color == BLACK
     def is_start(self):
@@ -71,7 +64,6 @@ class Spot:  #singular spot and its attributes
         self.color == BLACK
     def make_path(self):
         self.color == PURPLE
-    
     #function to draw the lines
     def draw(self, win):
         pygame.draw.rect(win,self.color,(self.x,self.y,self.width,self.width))
@@ -89,16 +81,15 @@ def h(p1,p2): #Heuristic Function ( manhattan distance )
     return abs(x1 - x2 ) + abs(y1 - y2)
 
 def make_grid(rows,width):
-    grid = []
-    gap = width//rows ## changes depending on the size of the grid you want 
-
+    grid1 = []
+    gap = width // rows
     for i in range(rows):
-        grid.append([])
+        grid1.append([])
         for j in range(rows):
-            spot = Spot(i,j,gap,rows)
-
-            grid[i].append(spot)
-    return grid 
+            spot = Spot(i, j, gap, rows)
+            grid1[i].append(spot)
+                        
+    return grid1 
 
 
 def draw_grid(win,rows, width):
@@ -117,4 +108,56 @@ def draw(win, grid, rows, width):
     
     draw_grid(win,rows,width)
     pygame.display.update() #tells pygame to update the canvas 
-def mouse_pos()
+
+def get_clicked_pos(pos, rows, width ): 
+    gap = width // rows 
+    y,x = pos 
+    row = y // gap  # think of this like how you would divide, if you have a x position and a width,
+    # if you divide the width from the x position, the remainder would be the position where the mouse is 
+
+    col = x // gap
+
+    return row,col 
+
+def main(win, width):
+    #algorithm, collision check, changing spots and altering them 
+
+    ROWS = 50
+    grid = make_grid(ROWS,width)
+
+    start = None
+    end = None 
+
+    run = True
+    started = False
+    
+    while run:
+        draw(win,grid, ROWS, width)
+        for event in pygame.event.get():
+             #these events are a list 
+            if event.type == pygame.QUIT:
+                run = False
+
+            if started:
+                continue # prevents the user from closing anything before the algortihm starts 
+
+            if pygame.mouse.get_pressed()[0]: #left mouse button
+                pos = pygame.mouse.get_pos()
+                row,col = get_clicked_pos(pos,ROWS,width)
+
+                spot = grid[row][col] 
+                if not start and spot != end:
+                    start = spot 
+                    start.make_start()
+                elif not end and spot != start:
+                    end = spot 
+                    end.make_end()
+                elif spot != end and spot != start:
+                    spot.make_barrier()
+
+            elif pygame.mouse.get_pressed()[2]: #right mouse button
+                pass
+    pygame.quit() 
+
+
+main(WIN,WIDTH)
