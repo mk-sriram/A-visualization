@@ -65,6 +65,7 @@ class Spot:  #singular spot and its attributes
     def make_path(self):
         self.color = PURPLE
     #function to draw the lines
+
     def draw(self, win):
         pygame.draw.rect(win, self.color,(self.x, self.y, self.width, self.width))
     
@@ -81,7 +82,7 @@ class Spot:  #singular spot and its attributes
         
         if self.col > 0 and not grid[self.row][self.col - 1].is_barrier(): #LEFT checking if you can move down 
             self.neighbors.append(grid[self.row][self.col - 1])
-
+    
     def __lt__(self, other): #less than function 
         #handling if the comparing two spots together, comparing one spot to another spot
         return False
@@ -142,18 +143,19 @@ def algorithm(draw, grid, start, end):
         if current != start:
             current.make_closed()
 
-    return False
+    return False 
+
 
 def make_grid(rows,width):
-    grid1 = []
+    grid = []
     gap = width // rows
     for i in range(rows):
-        grid1.append([])
+        grid.append([])
         for j in range(rows):
             spot = Spot(i, j, gap, rows)
-            grid1[i].append(spot)
+            grid[i].append(spot)
                         
-    return grid1 
+    return grid
 
 
 def draw_grid(win,rows, width):
@@ -193,7 +195,7 @@ def main(win, width):
     end = None 
 
     run = True
-    started = False
+    #started = False
     
     while run:
         draw(win,grid, ROWS, width)
@@ -202,8 +204,8 @@ def main(win, width):
             if event.type == pygame.QUIT:
                 run = False
 
-            if started:
-                continue # prevents the user from closing anything before the algortihm starts 
+            #if started:
+            #    continue # prevents the user from closing anything before the algortihm starts 
 
             if pygame.mouse.get_pressed()[0]: #left mouse button
                 pos = pygame.mouse.get_pos()
@@ -226,17 +228,18 @@ def main(win, width):
                 spot.reset()
                 if spot == start:
                     start = None
-                if spot == end:
+                elif spot == end:
                     end == None
 
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and not started: # checks 
+                if event.key == pygame.K_SPACE and start and end: # and not started: # checks 
                     for row in grid:
                         for spot in row:
                             spot.update_neighbors(grid)
 
-                        algorithm(lambda: draw( win, grid, ROWS, width), grid, start, end)
+                    algorithm(lambda: draw( win, grid, ROWS, width), grid, start, end)
+
                 if event.key == pygame.K_c:
                     start = None
                     end = None 
@@ -248,3 +251,4 @@ main(WIN,WIDTH)
 
 # issue 1 : the button clisk didn't wokr - the spots were not updating the colors as the assignment operator was incorrect 
 # issue 2 : green was not spot for second click - color was incorrect in the make methods 
+# issue 3 : the algorithm inplace function was not indented correctly, as such the code was executed for every row and not after the update neighbors was finished 
